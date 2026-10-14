@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeTravel 3D | 3D Spatial Travel & Hazard Intelligence</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandBg: '#0B0C10',
+                        brandCard: '#1F2833',
+                        brandTeal: '#66FCF1',
+                        brandBlue: '#45A29E',
+                        hazardRed: '#FF4D4D',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-brandBg text-white font-sans antialiased selection:bg-brandTeal selection:text-black">
+
+    <!-- AntiGravity Particle Canvas -->
+    <canvas id="antiGravityCanvas" class="fixed inset-0 pointer-events-none z-0 opacity-60"></canvas>
+
+    <div class="relative z-10 min-h-screen flex flex-col justify-between p-6">
+        <!-- Header & Dual Mode Switcher -->
+        <header class="flex flex-col md:flex-row justify-between items-center max-w-7xl mx-auto w-full gap-4 border-b border-gray-800 pb-4">
+            <div class="text-2xl font-bold font-mono tracking-wider">
+                VibeTravel <span id="brandModeText" class="text-brandTeal">3D</span>
+            </div>
+            
+            <div class="flex bg-gray-900/90 p-1.5 rounded-xl border border-gray-800 text-xs shadow-xl">
+                <button id="btnTourism" onclick="switchMode('tourism')" class="px-5 py-2 rounded-lg font-bold bg-brandTeal text-black transition-all">
+                    🌐 3D 가상 여행 & 로컬 탐색
+                </button>
+                <button id="btnHazard" onclick="switchMode('hazard')" class="px-5 py-2 rounded-lg font-bold text-gray-400 hover:text-white transition-all">
+                    🚨 재난 · 위험 지역 실시간 진단
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 my-6">
+            <!-- Left Panel: AI Intelligence Search & Interactive Form -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-brandCard/60 border border-gray-800 p-6 rounded-2xl shadow-2xl backdrop-blur-md">
+                    <h2 id="searchTitle" class="text-xl font-bold mb-2 text-brandTeal">3D 글로벌 가상 여행 검색</h2>
+                    <p id="searchDesc" class="text-gray-400 text-xs mb-6">전 세계 관광지의 3D 입체 정보, 날씨, 환율, 항공/숙박 제휴 및 최적 동선을 AI가 추천합니다.</p>
+                    
+                    <form id="vibeForm" onsubmit="handleVibeSearch(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-mono text-gray-300 mb-1">목적지 / 검색 지역</label>
+                            <input type="text" id="locationInput" placeholder="예: 도쿄, 파리, 우크라이나, 지진발생지역..." required class="w-full bg-brandBg border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-200 focus:border-brandTeal outline-none transition">
+                        </div>
+                        <button type="submit" id="searchSubmitBtn" class="w-full bg-brandTeal text-black font-bold py-3.5 rounded-xl hover:bg-opacity-90 transition shadow-lg shadow-brandTeal/20">
+                            🔍 AI 3D 로컬 탐색 시작
+                        </button>
+                    </form>
+                </div>
+
+                <!-- AI Output Display Box -->
+                <div id="aiOutputBox" class="hidden bg-brandCard/80 border border-brandTeal/40 p-6 rounded-2xl shadow-2xl text-sm space-y-4 backdrop-blur-md">
+                    <!-- Dynamic Output -->
+                </div>
+            </div>
+
+            <!-- Right Panel: 3D Spline Interactive Spatial Viewport -->
+            <div class="lg:col-span-7 h-[600px] bg-gray-900/40 border border-gray-800 rounded-2xl overflow-hidden relative shadow-2xl">
+                <iframe id="splineIframe" src="https://my.spline.design/3dearthcopy-83a3f5b9d3118b6287e0fa19a9900c92/" width="100%" height="100%" class="border-0" title="Spline 3D Globe"></iframe>
+                <div class="absolute bottom-4 left-4 bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-lg border border-gray-800 text-xs text-gray-400 font-mono">
+                    🎮 Interactive 3D Spatial Globe Powered by Spline & Google 3D Tiles
+                </div>
+            </div>
+        </main>
+
+        <footer class="text-center text-xs text-gray-600 py-4 border-t border-gray-900">
+            © 2026 UCKLab VibeTravel 3D. All rights reserved. Powered by Vercel 0-Cost Serverless & Google Gemini 1.5.
+        </footer>
+    </div>
+
+    <!-- JavaScript Core: AntiGravity Physics + Mode Switcher + Vercel Serverless AI API -->
+    <script>
+        let currentMode = 'tourism';
+
+        // 1. AntiGravity Particle Physics System
+        const canvas = document.getElementById('antiGravityCanvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        const particles = Array.from({ length: 70 }, () => ({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            radius: Math.random() * 3 + 1,
+            vx: (Math.random() - 0.5) * 1.2,
+            vy: (Math.random() - 0.3) * -1.5,
+            color: '#66FCF1',
+            pulse: Math.random() * Math.PI
+        }));
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.pulse += 0.03;
+
+                if (p.y < -10) p.y = height + 10;
+                if (p.y > height + 10) p.y = -10;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius + Math.sin(p.pulse) * 0.8, 0, Math.PI * 2);
+                ctx.fillStyle = currentMode === 'hazard' ? '#FF4D4D' : '#66FCF1';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = ctx.fillStyle;
+                ctx.fill();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // 2. Dual Mode Switching Logic
+        function switchMode(mode) {
+            currentMode = mode;
+            const btnTourism = document.getElementById('btnTourism');
+            const btnHazard = document.getElementById('btnHazard');
+            const brandText = document.getElementById('brandModeText');
+            const title = document.getElementById('searchTitle');
+            const desc = document.getElementById('searchDesc');
+            const submitBtn = document.getElementById('searchSubmitBtn');
+
+            if (mode === 'hazard') {
+                btnHazard.className = "px-5 py-2 rounded-lg font-bold bg-hazardRed text-white transition-all shadow-lg shadow-hazardRed/30";
+                btnTourism.className = "px-5 py-2 rounded-lg font-bold text-gray-400 hover:text-white transition-all";
+                brandText.className = "text-hazardRed";
+                brandText.innerText = "3D Risk Intelligence";
+                title.className = "text-xl font-bold mb-2 text-hazardRed";
+                title.innerText = "🚨 재난 · 위험 지역 실시간 진단";
+                desc.innerText = "외교부 여행경보, 글로벌 재난(GDACS) 실시간 위험도, 비상 연락망 및 AI 위기 대응 안전 가이드를 제공합니다.";
+                submitBtn.className = "w-full bg-hazardRed text-white font-bold py-3.5 rounded-xl hover:bg-opacity-90 transition shadow-lg shadow-hazardRed/30";
+                submitBtn.innerText = "🚨 위험도 & 안전 가이드 진단";
+            } else {
+                btnTourism.className = "px-5 py-2 rounded-lg font-bold bg-brandTeal text-black transition-all shadow-lg shadow-brandTeal/20";
+                btnHazard.className = "px-5 py-2 rounded-lg font-bold text-gray-400 hover:text-white transition-all";
+                brandText.className = "text-brandTeal";
+                brandText.innerText = "3D";
+                title.className = "text-xl font-bold mb-2 text-brandTeal";
+                title.innerText = "3D 글로벌 가상 여행 검색";
+                desc.innerText = "전 세계 관광지의 3D 입체 정보, 날씨, 환율, 항공/숙박 제휴 및 최적 동선을 AI가 추천합니다.";
+                submitBtn.className = "w-full bg-brandTeal text-black font-bold py-3.5 rounded-xl hover:bg-opacity-90 transition shadow-lg shadow-brandTeal/20";
+                submitBtn.innerText = "🔍 AI 3D 로컬 탐색 시작";
+            }
+        }
+
+        // 3. Vercel Serverless AI API Call
+        async function handleVibeSearch(e) {
+            e.preventDefault();
+            const location = document.getElementById('locationInput').value;
+            const outputBox = document.getElementById('aiOutputBox');
+            const submitBtn = document.getElementById('searchSubmitBtn');
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "⚡ AI 분석 진행 중...";
+            outputBox.classList.remove('hidden');
+            outputBox.innerHTML = `<p class="text-gray-400 animate-pulse">Google Gemini 1.5 Flash AI가 ${location} 지역 데이터를 분석 중입니다...</p>`;
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bizType: currentMode, bottleneck: location })
+                });
+
+                const data = await response.json();
+                submitBtn.disabled = false;
+                submitBtn.innerText = currentMode === 'hazard' ? "🚨 위험도 & 안전 가이드 진단" : "🔍 AI 3D 로컬 탐색 시작";
+
+                if (response.ok && data.result) {
+                    outputBox.innerHTML = `
+                        <div class="flex items-center justify-between border-b border-gray-800 pb-3 mb-2">
+                            <span class="font-bold ${currentMode === 'hazard' ? 'text-hazardRed' : 'text-brandTeal'}">
+                                ${currentMode === 'hazard' ? '🚨 재난/위험 실시간 분석 리포트' : '🌐 3D 여행 & 로컬 탐색 리포트'}
+                            </span>
+                            <span class="text-xs text-gray-500">${new Date().toLocaleTimeString()}</span>
+                        </div>
+                        <div class="text-gray-200 leading-relaxed whitespace-pre-wrap">${data.result}</div>
+                    `;
+                } else {
+                    outputBox.innerHTML = `<p class="text-red-400">분석 실패: ${data.error || 'AI 응답을 가져오지 못했습니다.'}</p>`;
+                }
+            } catch (err) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = currentMode === 'hazard' ? "🚨 위험도 & 안전 가이드 진단" : "🔍 AI 3D 로컬 탐색 시작";
+                outputBox.innerHTML = `<p class="text-red-400">서버 통신 오류가 발생했습니다. Vercel 환경 변수(GEMINI_API_KEY) 설정을 확인해 주세요.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
